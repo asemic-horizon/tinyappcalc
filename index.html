@@ -1,0 +1,55 @@
+<h1> Poor Richard's Interactive Jackknife Demonstration</h1>
+
+<h2>Short explanation</h2>
+<p>When you take a bunch of measurements, you have a sample with deterministic properties. For example, the average is what the average is.
+   But in the statistical setting your sample is an imperfect representation of the population; effectively, the population average is, to you, a random vriable.</p>
+
+<p>The jackknife is a nonparametric plug-in estimator for the population average. The stuff below was written to learn how to communicate HTML pages with REST back-ends, but can give you useful results at any rate. </p>
+<h2>Inputs</h1>
+  <li>Value list:
+  <input type="text" id="value_list" value="1,2,3" name="value_list"></li>
+  <li> Tail probability: 
+<input type="text" id="tails" value="0.2" name="tails"></li>
+</ul>
+
+<input type="button" id="go" value="get!" name="results" onClick="snd();">
+
+<h2> Results:</h2>
+<li> Mean: <input type="text" id="mean" value="" name="mean"> </li>
+<li> Median: <input type="text" id="median" value="" name="median"> </li>
+<li> Mode: <input type="text" id="mode" value="" name="mode"> </li>
+<li> Bounds: <input type="lower" id="lower" value="" name="lower"> to <input type="text" id="upper" value="" name="upper"> </li>
+
+
+
+<script type="text/javascript">
+
+  function snd(){
+
+    var tails = document.getElementById('tails').value;
+    var value_list = document.getElementById('value_list').value;
+    var vals = JSON.parse("[" + value_list + "]");
+    var xhr = new XMLHttpRequest();
+    var content =  JSON.stringify({
+        'values': vals,
+        'tails': parseFloat(tails)
+    })
+    xhr.open("POST", "http://142.93.116.203:8000/jackknife", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(content);
+    console.log(content)
+    xhr.onload = function() {
+    console.log(this.responseText);
+    var data = JSON.parse(this.responseText);
+    console.log(data);
+    document.getElementById('mean').setAttribute('value',data.averages.mean);
+    document.getElementById('median').setAttribute('value',data.averages.median);
+    document.getElementById('mode').setAttribute('value',data.averages.mode);
+    document.getElementById('lower').setAttribute('value',data.bounds.lower);
+    document.getElementById('upper').setAttribute('value',data.bounds.higher);
+
+  }
+
+  }
+
+</script>
