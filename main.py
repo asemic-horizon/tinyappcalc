@@ -42,14 +42,20 @@ async def jack(prob: MeanProblem):
     values, tails = prob.values, prob.tails
     print(values, tails)
     partial_means = jknife(values)
-    q1 = np.quantile(partial_means, tails/2)
-    qm = np.median(partial_means)
-    mm = np.mean(partial_means)
-    q2 = np.quantile(partial_means, 1-tails/2)
     mode = discrete_mode(partial_means)
-    averages = {'mean':mm, 'median':qm, 'mode': mode}
-    bounds = {'lower': q1, 'higher':q2}
-    return {'averages':averages,'bounds':bounds}
+    left = (1 - tails)/2
+    results = {
+            'mean': np.mean(partial_means),
+            'median': np.median(partial_means),
+            'lower': np.quantile(partial_means, left),
+            'higher': np.quantile(partial_means, 1-left),
+            'mode': mode,
+            'big_sigma': sum(values),
+            'big_modal_sigma': mode * len(values)
+    }
+
+    print(results)
+    return results
 
 @app.post("/test")
 async def test(lst: List, fl : float):
