@@ -31,44 +31,40 @@
       </div>
     </div>
     <div class = "row" style="text-align: center">
-        <div class="col-sm-1"></div> <div class="col-sm-9">Tails:</div>
+        <div class="col-sm-1"></div> <div class="col-sm-9">Confidence interval width (between 0 and 1):</div>
     </div>
     <div class="row" style="text-align: center">
       <div class="col-sm-1"></div> <div class="col-sm-9">
-          <input type="text" id="tails" value="0.05" name="tails"></div>
+          <input type="text" id="tails" value="0.5" name="tails"></div>
     </div>
   </div>
     <div class = "row" style="text-align: center">
       <div class="col-sm-4"></div>
       <div class="col-sm-9  ">
-          <input type="button" id="go" value="get!" name="results" onClick="snd();">
+          <input type="button" id="go" value="get!" name="results" onClick="data_request();">
       </div>
     </div>
   </div>
-  <a name="results">
+  <a name="results"></a>
   <h2> Results:</h2>
   <ul>
-  <li> Mean: <strong id="mean" style = "font-weight:bold"></strong></li>
+  <li> Median: <strong id="mean" style = "font-weight:bold"></strong></li>
   <li> Median: <strong id="median" style = "font-weight:bold"></strong></li>
   <li> Mode: <strong id="mode" style = "font-weight:bold"></strong></li>
   <li> Sample sum: <strong id="big_sigma" style = "font-weight:bold"></strong></li>
   <li> Modal sigma: <strong id="big_modal_sigma" style = "font-weight:bold"></strong></li>
-  <li> Bounds: <strong id="lower" style = "font-weight:bold"></strong> to <strong id="upper" style = "font-weight:bold"></strong>
+  <li> Bounds: <strong id="lower" style = "font-weight:bold"></strong> to <strong id="higher" style = "font-weight:bold"></strong>
   </ul>
 </div>
 
   <script type="text/javascript">
 
-    function snd(){
-
-      var tails = document.getElementById('tails').value;
-      var value_list = document.getElementById('value_list').value;
-      var vals = JSON.parse("[" + value_list + "]");
+    function data_request(){
       var xhr = new XMLHttpRequest();
       var content =  JSON.stringify({
-          'values': vals,
-          'tails': parseFloat(tails)
-      })
+          'values': JSON.parse("[" + document.getElementById('value_list').value + "]"),
+          'tails': parseFloat(document.getElementById('tails').value)
+      });
       xhr.open("POST", "http://142.93.116.203:8000/jackknife", true);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.send(content);
@@ -77,13 +73,12 @@
       console.log(this.responseText);
       var data = JSON.parse(this.responseText);
       console.log(data);
-      document.getElementById('mean').innerHTML = data.mean.toFixed(1);
-      document.getElementById('median').innerHTML = data.median.toFixed(1);
-      document.getElementById('mode').innerHTML = data.mode.toFixed(1);
-      document.getElementById('lower').innerHTML = data.lower.toFixed(1);
-      document.getElementById('upper').innerHTML = data.higher.toFixed(1);
-      document.getElementById('big_sigma').innerHTML = data.big_sigma.toFixed(1);
-      document.getElementById('big_modal_sigma').innerHTML = data.big_modal_sigma.toFixed(1);
+      for (var varname in data){
+        if (data.hasOwnProperty(varname)) {
+          document.getElementById(varname).innerHTML = data[varname].toFixed(1)
+        }
+        }
+
       document.location+="#results";
     }
 
