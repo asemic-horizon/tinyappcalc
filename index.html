@@ -1,56 +1,94 @@
-<h1> Poor Richard's Interactive Jackknife Demonstration</h1>
-<!--
-<h2>Short explanation</h2>
-<p>When you take a bunch of measurements, you have a sample with deterministic properties. For example, the average is what the average is.
-   But in the statistical setting your sample is an imperfect representation of the population; effectively, the population average is, to you, a random vriable.</p>
+<html>
+<head>
+  <title> Autoform</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
 
-<p>The jackknife is a nonparametric plug-in estimator for the population average. The stuff below was written to learn how to communicate HTML pages with REST back-ends, but can give you useful results at any rate. </p> -->
-<h2>Inputs</h1>
-  <li>Value list:
-  <input type="text" id="value_list" value="1,2,3" name="value_list"></li>
-  <li> Tail probability:
-<input type="text" id="tails" value="0.2" name="tails"></li>
-</ul>
+  <h1> Poor Richard's Interactive Jackknife Demonstration</h1>
+  <!--
+  <h2>Short explanation</h2>
+  <p>When you take a bunch of measurements, you have a sample with deterministic properties. For example, the average is what the average is.
+     But in the statistical setting your sample is an imperfect representation of the population; effectively, the population average is, to you, a random vriable.</p>
 
-<input type="button" id="go" value="get!" name="results" onClick="snd();">
+  <p>The jackknife is a nonparametric plug-in estimator for the population average. The stuff below was written to learn how to communicate HTML pages with REST back-ends, but can give you useful results at any rate. </p> -->
+<div class="container">
+  <div class = "row">
 
-<h2> Results:</h2>
-<ul>
-<li> Mean: <strong id="mean" style = "font-weight:bold"></strong></li>
-<li> Median: <strong id="median" style = "font-weight:bold"></strong></li>
-<li> Mode: <strong id="mode" style = "font-weight:bold"></strong></li>
-<li> Bounds: <strong id="lower" style = "font-weight:bold"></strong> to <strong id="upper" style = "font-weight:bold"></strong>
-</ul>
+  <h2 style="text-align: center">Inputs</h2>
 
 
-<script type="text/javascript">
+  </div>
+</div>
+    <div class = "row" style="text-align:center">
+      <div class="col-sm-1"></div> <div class="col-sm-9">
+         Value list:</div>
+    </div>
+    <div class= "row" style="text-align: center">
+        <div class="col-sm-1"></div> <div class="col-sm-9">
+        <input type="text" id="value_list" value="10,33,35,36,61,63" name="value_list">
+      </div>
+    </div>
+    <div class = "row" style="text-align: center">
+        <div class="col-sm-1"></div> <div class="col-sm-9">Tails:</div>
+    </div>
+    <div class="row" style="text-align: center">
+      <div class="col-sm-1"></div> <div class="col-sm-9">
+          <input type="text" id="tails" value="0.05" name="tails"></div>
+    </div>
+  </div>
+    <div class = "row" style="text-align: center">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-9  ">
+          <input type="button" id="go" value="get!" name="results" onClick="snd();">
+      </div>
+    </div>
+  </div>
+  <a name="results">
+  <h2> Results:</h2>
+  <ul>
+  <li> Mean: <strong id="mean" style = "font-weight:bold"></strong></li>
+  <li> Median: <strong id="median" style = "font-weight:bold"></strong></li>
+  <li> Mode: <strong id="mode" style = "font-weight:bold"></strong></li>
+  <li> Sample sum: <strong id="big_sigma" style = "font-weight:bold"></strong></li>
+  <li> Modal sigma: <strong id="big_modal_sigma" style = "font-weight:bold"></strong></li>
+  <li> Bounds: <strong id="lower" style = "font-weight:bold"></strong> to <strong id="upper" style = "font-weight:bold"></strong>
+  </ul>
+</div>
 
-  function snd(){
+  <script type="text/javascript">
 
-    var tails = document.getElementById('tails').value;
-    var value_list = document.getElementById('value_list').value;
-    var vals = JSON.parse("[" + value_list + "]");
-    var xhr = new XMLHttpRequest();
-    var content =  JSON.stringify({
-        'values': vals,
-        'tails': parseFloat(tails)
-    })
-    xhr.open("POST", "http://142.93.116.203:8000/jackknife", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(content);
-    console.log(content)
-    xhr.onload = function() {
-    console.log(this.responseText);
-    var data = JSON.parse(this.responseText);
-    console.log(data);
-    document.getElementById('mean').innerHTML = data.averages.mean;
-    document.getElementById('median').innerHTML = data.averages.median;
-    document.getElementById('mode').innerHTML = data.averages.mode;
-    document.getElementById('lower').innerHTML = data.bounds.lower;
-    document.getElementById('upper').innerHTML = data.bounds.higher;
+    function snd(){
 
-  }
+      var tails = document.getElementById('tails').value;
+      var value_list = document.getElementById('value_list').value;
+      var vals = JSON.parse("[" + value_list + "]");
+      var xhr = new XMLHttpRequest();
+      var content =  JSON.stringify({
+          'values': vals,
+          'tails': parseFloat(tails)
+      })
+      xhr.open("POST", "http://142.93.116.203:8000/jackknife", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(content);
+      console.log(content)
+      xhr.onload = function() {
+      console.log(this.responseText);
+      var data = JSON.parse(this.responseText);
+      console.log(data);
+      document.getElementById('mean').innerHTML = data.mean.toFixed(1);
+      document.getElementById('median').innerHTML = data.median.toFixed(1);
+      document.getElementById('mode').innerHTML = data.mode.toFixed(1);
+      document.getElementById('lower').innerHTML = data.lower.toFixed(1);
+      document.getElementById('upper').innerHTML = data.higher.toFixed(1);
+      document.getElementById('big_sigma').innerHTML = data.big_sigma.toFixed(1);
+      document.getElementById('big_modal_sigma').innerHTML = data.big_modal_sigma.toFixed(1);
+      document.location+="#results";
+    }
 
-  }
+    }
 
-</script>
+  </script>
+</body>
+</html>
